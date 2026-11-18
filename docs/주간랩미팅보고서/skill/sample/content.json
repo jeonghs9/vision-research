@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "title": "주간 실험 보고",
+    "name": "정혜선",
+    "report_date": "2026-11-13",
+    "period_start": "2026-11-09",
+    "period_end": "2026-11-13"
+  },
+  "experiments": [
+    {
+      "title": "[예시] 실험 A 제목",
+      "project": "[예시] 프로젝트명",
+      "status": "완료",
+      "one_line": "[예시] 기준 대비 F1 +0.03 향상",
+      "background": [
+        "[예시] 이 실험을 하게 된 계기·문제 상황 한두 문장",
+        "[예시] 지난주까지 확인된 내용이나 기존 방법의 한계"
+      ],
+      "purpose": [
+        "[예시] 이 실험으로 확인하고 싶은 것 한 문장"
+      ],
+      "hypothesis": "[예시] ~하면 ~가 좋아질 것이다",
+      "setup": [
+        {"group": "데이터", "items": [["학습 / 검증", "000장 / 000장"], ["입력 크기", "1280 × 720"]]},
+        {"group": "모델", "items": [["구조", "[예시] 모델명 + 백본"], ["변경점", "[예시] 기준 대비 바꾼 부분"]]},
+        {"group": "하이퍼파라미터", "items": [["epoch / batch", "150 / 8"], ["optimizer / lr", "AdamW / 1e-3"], ["GPU", "1 × A6000"]]}
+      ],
+      "results": [
+        {
+          "title": "검증셋 성능",
+          "columns": ["모델", "Precision", "Recall", "F1", "비고"],
+          "rows": [
+            ["[예시] 기준 모델", "0.000", "0.000", "0.736", "-"],
+            ["[예시] 제안 모델", "0.000", "0.000", "0.770", "best epoch 140"]
+          ],
+          "highlight": [[1, 3]],
+          "note": "[예시] 평가 조건 등 짧은 주석"
+        }
+      ],
+      "photos": [
+        {
+          "title": "결과 비교",
+          "images": [
+            {"path": "images/sample_1.png", "caption": "[예시] 기준 모델", "desc": "[예시] 이 사진에서 봐야 할 점을 한두 문장으로 설명"},
+            {"path": "images/sample_2.png", "caption": "[예시] 제안 모델", "desc": "[예시] 기준과 달라진 부분 설명"},
+            {"path": "images/sample_3.png", "caption": "[예시] 실패 사례", "desc": "[예시] 어디가 틀렸는지 설명"}
+          ],
+          "interpretation": [
+            "[예시] 결과에서 읽을 수 있는 사실 한 줄",
+            "[예시] 그 이유에 대한 해석 한 줄"
+          ]
+        },
+        {
+          "title": "추가 사진 (1장 예시)",
+          "images": [
+            {"path": "images/sample_1.png", "caption": "[예시] 큰 사진 1장", "desc": "[예시] 사진 1장만 크게 보여줄 때는 오른쪽에 설명이 붙습니다."}
+          ],
+          "interpretation": ["[예시] 해석 한 줄"]
+        }
+      ],
+      "next": [
+        "[예시] 다음에 해볼 실험 1",
+        "[예시] 다음에 해볼 실험 2"
+      ]
+    },
+    {
+      "title": "[예시] 실험 B 제목",
+      "project": "[예시] 프로젝트명",
+      "status": "진행 중",
+      "one_line": "[예시] 학습 중 (ep 80/150)",
+      "background": ["[예시] 배경 한 문장"],
+      "purpose": ["[예시] 실험 목적 한 문장"],
+      "setup": [
+        {"group": "데이터", "items": [["학습 / 검증", "000장 / 000장"]]},
+        {"group": "모델", "items": [["구조", "[예시] 모델명"]]},
+        {"group": "하이퍼파라미터", "items": [["epoch / batch", "150 / 8"]]}
+      ],
+      "results": [],
+      "photos": [
+        {
+          "title": "중간 결과",
+          "images": [
+            {"path": "images/sample_1.png", "caption": "[예시] 1", "desc": "[예시] 설명 1"},
+            {"path": "images/sample_2.png", "caption": "[예시] 2", "desc": "[예시] 설명 2"},
+            {"path": "images/sample_3.png", "caption": "[예시] 3", "desc": "[예시] 설명 3"},
+            {"path": "images/sample_4.png", "caption": "[예시] 4", "desc": "[예시] 설명 4"}
+          ],
+          "interpretation": ["[예시] 중간 관찰 내용"]
+        }
+      ],
+      "next": ["[예시] 학습 완료 후 비교"]
+    }
+  ],
+  "summary": {
+    "conclusions": ["[예시] 이번 주 핵심 결론 1", "[예시] 핵심 결론 2"],
+    "next_week": [],
+    "issues": ["[예시] GPU 지원 요청 등"]
+  }
+}

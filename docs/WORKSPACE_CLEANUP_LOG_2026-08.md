@@ -318,7 +318,7 @@ open issues: 없음
 
 ```text
 원본: /home/hsjeong/workspace/Yolo26/ultralytics/PROJECT/OCR-CAR-CATEGORY/UTIL/visualize_solid_lane_crossing_v5.3.1.py
-신규: /home/hsjeong/workspace/applications/traffic-video-analytics/scripts/visualize_solid_lane_crossing_v5.3.1.py
+신규: /home/hsjeong/workspace/applications/traffic-video-analytics/scripts/02-pipeline/visualize_solid_lane_crossing_v5.3.1.py
 ```
 
 - `Yolo26` 코드, 모델, 데이터와 기존 `PROJECT` 원본은 이동하거나 삭제하지 않았다.
@@ -332,8 +332,8 @@ open issues: 없음
 상세 검증 결과와 기존 UTIL 파일 분류는 다음 문서에 기록했다.
 
 ```text
-applications/traffic-video-analytics/docs/MIGRATION_VERIFICATION_2026-08-10.md
-applications/traffic-video-analytics/docs/UTIL_FILE_DISPOSITION.md
+applications/traffic-video-analytics/docs/03-migration/MIGRATION_VERIFICATION_2026-08-10.md
+applications/traffic-video-analytics/docs/03-migration/UTIL_FILE_DISPOSITION.md
 ```
 
 현재 PaddleOCR 캐시는 여전히 다음 기존 경로를 사용한다.
@@ -436,3 +436,64 @@ b2_skyscapes_30k/iter_14000.pth
 ```
 
 B0 AI Hub는 best와 final이 같고, B2 SkyScapes는 best checkpoint다. B0 AI Hub BEV와 B0 SkyScapes는 final checkpoint이며 로그상 최고 mIoU checkpoint와는 다르다. 네 checkpoint와 로그·config의 현재 `work_dirs` 용량은 약 443MB다. pretrained B0~B5 6개 약 867MB는 사용자 요청에 따라 그대로 유지했다.
+
+### 기존 결과 영상 정리
+
+2026-08-11에 백업 모델을 이용한 신규 경로 검증이 끝난 것을 확인한 뒤, 기존 프로젝트의 결과 영상 폴더를 삭제했다.
+
+```text
+/home/hsjeong/workspace/Yolo26/ultralytics/PROJECT/OCR-CAR-CATEGORY/RESULT_VIDEO
+```
+
+삭제 대상은 결과 파일 146개, 약 114GB였다. 삭제 후 기존 `OCR-CAR-CATEGORY` 폴더는 약 337MB로 줄었다. 다음 신규 검증 결과는 삭제하지 않고 유지했다.
+
+```text
+/home/hsjeong/workspace/applications/traffic-video-analytics/tests/폴더정리후임시테스트.mp4  (약 2.2GB)
+/home/hsjeong/workspace/applications/traffic-video-analytics/tests/폴더정리후임시테스트.csv  (약 50MB)
+```
+
+### OCR-CAR-CATEGORY UTIL 정리
+
+2026-08-11에 최종 배포 파일 `visualize_solid_lane_crossing_v5.3.1.py`가 기존 프로젝트의 다른 Python 파일을 import하지 않는 것을 다시 확인했다. 데이터 준비·분할·시각화 도구만 다음 위치로 보존했다.
+
+```text
+/home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/
+/home/hsjeong/workspace/vision-seg/SegFormer/scripts/visualization/
+/home/hsjeong/workspace/applications/traffic-video-analytics/scripts/data/
+```
+
+SegFormer 환경 설치·weight 변환·구형 추론 도구와 기존 OCR·optical-flow·진단·테스트 prototype·version archive는 최종 런타임 의존성이 아니므로 보존하지 않았다.
+
+`v5.3.1.py`의 과거 OCR 캐시 기본 경로를 제거하고 다음 Git 제외 경로를 기본값으로 사용하도록 변경했다.
+
+```text
+/home/hsjeong/workspace/applications/traffic-video-analytics/models/runtime-cache/ocr/
+```
+
+기존 캐시에서 PaddleOCR 실행 캐시만 복사했으며, 저장소와 실험 파일은 복사하지 않았다. `/home/hsjeong/workspace/dataset/etc./test_video/19700101_000157_T.mp4`를 입력으로 GPU 3에서 OCR 포함 3프레임을 실행했다. orientation·detection·recognition 모델이 모두 신규 캐시에서 로드됐고 `/tmp`에 MP4와 CSV가 정상 생성됐다.
+
+검증 후 기존 `OCR-CAR-CATEGORY/UTIL` 96개 파일, 약 3MB를 삭제했다.
+
+### Shopping Lens 방향 문서 추가
+
+2026-09-15에 `/home/hsjeong/workspace/port/shopping_lens/docs/`에 프로젝트의 baseline 범위와 단계별 실험 방향을 정리한 `0. 방향설정.md`를 추가했다. DINOv3 global·patch feature, FashionCLIP 스타일 유사도, 선택적인 의류 탐지 crop의 역할을 구분하고 이번 범위에서 모델 파인튜닝과 탐지 모델 학습을 제외한다고 명시했다.
+
+### Shopping Lens global retrieval baseline 현황 문서 추가
+
+2026-09-15에 `/home/hsjeong/workspace/port/shopping_lens/docs/1. DINOv3 Global Retrieval Baseline 현황.md`를 추가했다. Colab 실행 환경, 기존 옷 6장과 새 옷 1장의 DINOv3 global retrieval 결과, 사람의 예상과 다른 검색 순위, 배경·의복 구조·정사각형 resize에 관한 가설과 다음 crop 비교 실험을 기록했다.
+
+### Shopping Lens local correspondence와 FashionCLIP baseline 현황 문서 추가
+
+2026-09-15에 `/home/hsjeong/workspace/port/shopping_lens/docs/2. DINOv3 Local Correspondence와 FashionCLIP Baseline 현황.md`를 추가했다. Query crop 전후 DINOv3 retrieval, patch correspondence와 부위별 비교, FashionCLIP image feature 검색 결과, 두 모델의 순위 차이와 현재 한계 및 다음 실험을 기록했다.
+
+### Shopping Lens 웹 데모 전환 계획 추가
+
+2026-09-15에 `/home/hsjeong/workspace/port/shopping_lens/docs/3. Shopping Lens 웹 데모 전환 계획.md`를 추가했다. Notebook에서 검증한 SegFormer 자동 crop, DINOv3 검색과 FashionCLIP 검색을 FastAPI 및 HTML/CSS/JavaScript 기반 단계형 웹 데모로 전환하기 위한 범위, 화면 흐름, API 초안, 모듈 구조, 실패 처리, 검증 항목과 단계별 학습 계획을 기록했다. 계획 단계에서는 웹 코드나 빈 디렉터리를 생성하지 않았다.
+
+### Shopping Lens 자동 crop 모듈 분리 시작
+
+2026-09-15에 `/home/hsjeong/workspace/port/shopping_lens/scripts/01-inference/crop.py`를 추가했다. Notebook에서 검증한 SegFormer human-parsing 기반 상의 mask, crop 좌표, padding과 실패 조건을 웹 프레임워크에 의존하지 않는 함수와 `CropResult` dataclass로 분리했다. 직접 작성한 코드를 `scripts/`에 둔다는 워크스페이스 규칙에 맞춰 웹 데모 계획의 디렉터리 구조도 수정했다.
+
+### Shopping Lens DINOv3 추론 모듈 분리
+
+2026-09-15에 `/home/hsjeong/workspace/port/shopping_lens/scripts/01-inference/dinov3_retrieval.py`를 추가했다. 공식 `dinov3` Python 패키지와 이름이 충돌하지 않도록 모듈명을 구분했으며, DINOv3 모델 로딩, Notebook과 동일한 전처리, 단일·복수 이미지 global feature, patch feature와 코사인 유사도 순위 생성을 웹 프레임워크에 의존하지 않는 함수로 분리했다.

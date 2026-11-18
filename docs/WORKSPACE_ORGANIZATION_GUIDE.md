@@ -76,42 +76,160 @@ new_model_2
 3차모델
 ```
 
-## 3. 프로젝트 내부 구조
+### 2.1 Conda 가상환경 이름
 
-모든 연구 프로젝트는 같은 골격을 사용한다. 프로젝트 폴더만 열어도 원본 코드, 사용자 스크립트, 시험 출력과 최종 결과의 위치를 바로 알 수 있어야 한다.
+가상환경 이름은 프로젝트와 CUDA 버전을 바로 알 수 있게 다음 형식을 사용한다.
 
 ```text
-vision-seg/sam3/
+<프로젝트명>_cu<CUDA 버전>
+```
+
+- 프로젝트명은 영문 소문자와 숫자를 사용한다.
+- CUDA 버전에서 점(`.`)은 생략한다. 예: CUDA 12.6 → `cu126`
+- 같은 프로젝트에 환경이 하나라면 Python 버전은 이름에 넣지 않고 프로젝트 `README.md`에 기록한다.
+- CUDA를 사용하지 않는 환경은 `<프로젝트명>_cpu`를 사용한다.
+
+예:
+
+```text
+videomt_cu126
+segformer_cu111
+videomt_cpu
+```
+
+VidEoMT의 표준 Conda 가상환경 이름은 `videomt_cu126`이다.
+
+이 규칙은 새로 만드는 환경에 우선 적용한다. 기존 환경은 editable 설치, 실행 스크립트와 절대경로 의존성을 확인하기 전에 이름을 바꾸지 않는다.
+
+## 3. 프로젝트 내부 구조
+
+**2026-09-16부터 새로 만드는 프로젝트는 아래 골격을 쓴다.** 이 문서 맨 위 원칙대로
+기존 프로젝트(SAM3 등)를 자동으로 옮기지는 않는다 — 옛 골격은 3.4절에 남겨둔다.
+
+```text
+vision-det/YOLinO/
 ├── README.md
-├── src/                # Git 원본 저장소
-├── scripts/            # 직접 작성한 실행·변환·평가 스크립트
-├── config/             # 실행 설정과 데이터 YAML
-├── docs/               # 프로젝트 설명, 실험 기록, 사용법
-├── assets/             # 예제 이미지·영상 등 작은 리소스
-├── test/               # 테스트 코드·샘플·임시 실행 출력
-├── results/            # 채택한 최종 결과와 모델
-└── archive/            # 이전 버전과 폐기하지 않을 과거 작업
+├── source/             # clone한 원본 Git 저장소, 원형 유지
+├── docs/                # 프로젝트 문서 — 폴더별 정리, 파일명 규칙은 3.0
+├── scripts/             # 직접 작성한 실행·변환·평가 스크립트
+├── test/                # 스크립트를 돌렸을 때 임시로 결과를 보기 위한 공간
+│   ├── models/          # 실험별 학습 체크포인트 (실험 폴더명과 대응, 원본은 복사)
+│   ├── tmp/             # 정식 실험이 아닌 디버그·스모크 테스트
+│   └── log/             # 체크포인트 없는 평가 전용 실행의 로그
+├── models/              # test 로 비교한 것 중 현재 채택한 모델만 (한 개~소수)
+└── output/              # 비교 영상 등 보고서에 쓸 만한 결과. 용도별 하위 폴더 + 설명
 ```
 
 | 경로 | 내용 |
 |---|---|
 | `README.md` | 프로젝트 목적, 설치법, 주요 스크립트, 대표 결과 |
-| `src/` | clone한 원본 Git 저장소. `.git`도 이 안에 둔다 |
-| `scripts/` | 학습, 평가, 변환, 시각화 실행 스크립트 |
-| `config/` | 모델·학습·평가 설정과 데이터 YAML |
-| `docs/` | 요구사항, 실험 설명, 분석과 사용 문서 |
-| `assets/` | README용 이미지, 작은 샘플과 시각 자료 |
-| `test/` | 테스트 코드, 작은 샘플과 자유롭게 지울 수 있는 실행 결과 |
-| `results/` | 검토 후 채택한 모델, 표, 그림과 배포 파일 |
-| `archive/` | 이전 구현, 교체된 스크립트와 참고용 백업 |
+| `source/` | clone한 원본 Git 저장소. `.git`도 이 안에 둔다 |
+| `docs/` | 실험 기록, 검토 문서, 논문/모델 요약 등 — 3.0 |
+| `scripts/` | 학습, 평가, 변환, 시각화 실행 스크립트 — 3.0 |
+| `test/` | 실험 단위 임시 결과. 자유롭게 지우거나 다시 만들 수 있다 |
+| `test/models/` | 실험별 학습 체크포인트. `test/<실험명>/` 과 이름을 맞춘다. **복사본** — 이동시키지 않는다 |
+| `test/tmp/` | 정식 번호 실험이 아닌 디버그·스모크 테스트·실패한 시도. 이름 규칙 없음, 언제든 삭제 |
+| `test/log/` | 체크포인트를 만들지 않는 평가 전용 실행의 로그·수치 결과 |
+| `models/` | test 로 비교한 것 중 **현재 채택한 모델만**. 더 나은 모델이 나오면 교체한다 |
+| `output/` | 비교 영상·표·그림처럼 보고서·발표에 바로 쓸 결과물 |
 
-### 3.1 `src` 원본과 사용자 코드를 분리한다
+`config/`, `assets/`, `archive/`, `results/` 는 새 골격에 없다.
 
-`src/`는 외부 Git 저장소의 원형을 최대한 유지한다. 직접 사용하는 파이썬 파일과 실행 셸은 프로젝트 루트의 `scripts/`에 둔다.
+- 실행 설정(`params.yaml` 등)은 별도 폴더 없이 **해당 스크립트나 `test/<실험>/` 안에 같이 둔다.**
+  `--config` 처럼 경로를 직접 지정할 수 있는 도구라면 이 방식이 자연스럽다.
+- README용 작은 이미지·표는 `docs/` 하위 폴더 안에 함께 둔다.
+- 옛 버전을 따로 모아두는 `archive/`는 두지 않는다 — `test/`에 실험 단위로 이미
+  남아 있으므로, 지우지 않는 한 그 자체가 이력이 된다.
+- 채택 결과를 한데 모으던 `results/`는 성격이 다른 `models/`(모델 자체)와
+  `output/`(보고서용 산출물)로 나뉘었다.
+
+### 3.0 `docs/`와 `scripts/`는 파일이 4개를 넘으면 역할별 폴더로 나눈다
+
+평평하게 쌓으면 개수가 늘수록 무엇이 어디 있는지 파일명만으로 추측해야 한다.
+**파일이 4개를 넘으면** 아래 형식의 하위 폴더로 나눈다.
+
+```text
+NN-역할이름/          # 두 자리 번호 + 하이픈 + 영문 소문자 역할명
+```
+
+**`docs/` 예시**
+
+```text
+docs/
+├── README.md                  # 인덱스. 폴더별 담는 것과 문서 목록
+├── 01-lane-postprocess/       # 후처리 알고리즘 사양·검증
+├── 02-model-selection/        # 모델 비교와 선정 근거
+└── 03-migration/              # 이관·정리 기록
+```
+
+**`docs/` 파일명 규칙 (신규 골격, 2026-09-16~)** — 각 `NN-역할이름/` 폴더 **안에서
+번호를 새로 매기고, 번호 뒤는 한글로** 쓴다.
+
+```text
+docs/
+├── README.md
+├── 01-model-review/
+│   ├── 1. YOLinO 핵심 아이디어 요약.md
+│   └── 2. 데이터셋 적용 가능성 검토.md
+└── 02-integration/
+    └── 1. 커스텀 데이터 로더 설계.md
+```
+
+번호는 그 폴더 안에서 읽는 순서다. 폴더를 옮기더라도 번호를 포함한 파일명은 그대로 둔다.
+
+**`scripts/` 예시** — 학습 프로젝트는 대체로 이 흐름을 따른다.
+
+```text
+scripts/
+├── 01-data/          # 데이터 준비·변환·검증·시각화
+├── 02-train/         # 학습
+├── 03-inference/     # 추론 — 결과물을 만드는 것
+├── 04-eval/          # 정확도 평가
+└── 05-bench/         # 속도 측정 — 실험이지 결과물이 아니다
+```
+
+프로젝트 성격에 따라 이름은 달라진다. 예를 들어 라벨링 파이프라인이라면
+`01-data / 02-labeling / 03-vis` 가 맞다. **필요한 단계만 두고 번호는 연속으로** 매긴다
+(쓰지 않는 단계를 위해 번호를 비워두지 않는다).
+
+**`04-eval` 과 `05-bench` 를 나누는 이유** — 성격이 다르다. 평가는 "이 모델이 얼마나
+정확한가", 벤치마크는 "어디가 느린가" 를 본다. 한쪽만 있으면 한쪽만 만든다.
+
+#### 공통 규칙
+
+- **번호는 작업 흐름 순서**로 매긴다. 알파벳순이 아니라 "먼저 읽어야 할 것"이 앞이다.
+- **역할명은 담기는 파일의 성격**이지 주제가 아니다. `01-lane` 이 아니라
+  `01-lane-postprocess`, `02-model-selection` 처럼 **무엇을 하는지**가 드러나야 한다.
+- **`docs/`에는 `README.md`가 필수다.** 폴더별로 무엇을 담는지 한 줄씩 적어, 다음에
+  문서를 만들 때 어디 넣을지 고민하지 않게 한다.
+- **파일명은 바꾸지 않는다.** 폴더로 옮기기만 한다. 파일명을 함께 바꾸면 다른 문서·
+  스크립트에 박힌 참조가 조용히 깨진다.
+
+#### 옮기기 전에 반드시 참조를 검색한다
+
+```bash
+grep -rl "<파일명>" --include="*.md" --include="*.py" --include="*.yaml" --include="*.sh" .
+```
+
+경로가 박힌 곳을 찾아 함께 고친다. 이 과정을 건너뛰면 링크가 깨진 것을 한참 뒤에 알게 된다.
+
+**실행 중이거나 예약된 작업이 있으면 먼저 끝내고 옮긴다.** 백그라운드로 대기 중인
+스크립트가 옛 경로를 참조하고 있으면, 나중에 깨어날 때 조용히 실패한다.
+
+옮긴 뒤에는 문서에 적힌 경로가 실제로 존재하는지 확인한다.
+
+```bash
+grep -rhoE "[A-Za-z0-9_-]+/scripts/[0-9A-Za-z_/.-]+\.(py|sh)" --include="*.md" . \
+  | sort -u | while read ref; do [ -f "$ref" ] || echo "❌ $ref"; done
+```
+
+### 3.1 `source` 원본과 사용자 코드를 분리한다
+
+`source/`는 외부 Git 저장소의 원형을 최대한 유지한다. 직접 사용하는 파이썬 파일과 실행 셸은 프로젝트 루트의 `scripts/`에 둔다.
 
 ```text
 vision-seg/sam3/
-├── src/
+├── source/
 │   ├── .git/
 │   ├── sam3/
 │   ├── pyproject.toml
@@ -123,38 +241,80 @@ vision-seg/sam3/
 
 원본 코드 자체를 수정해야 한다면 수정 내역을 Git commit으로 남긴다. 원본 저장소 안에 임시 스크립트나 결과 이미지를 추가하지 않는다.
 
-### 3.2 `test`와 `results`를 엄격히 구분한다
+### 3.2 `test` / `models` / `output` 을 성격으로 구분한다 (신규 골격)
 
 ```text
-test/
-├── cases/                  # 테스트 코드와 작은 fixture
-└── output/                 # 재생성 가능, 필요하면 전체 삭제 가능
-    ├── images/
-    ├── videos/
-    ├── predictions/
-    └── logs/
+test/                        # 실험 단위 임시 결과 — 자유롭게 지우거나 다시 만든다
+├── 001-<핵심변경점>/         # 정식 실험 하나 (config, metrics, logs, figures)
+├── 002-<핵심변경점>/
+├── models/                  # 실험별 체크포인트. test/<실험명>/ 과 이름을 맞춤
+│   ├── 001-<핵심변경점>/best.pt
+│   └── 002-<핵심변경점>/best.pt
+├── tmp/                     # 정식 실험이 아닌 디버그·스모크 테스트·실패한 시도
+└── log/                     # 체크포인트 없이 로그·수치만 남기는 평가 전용 실행
 
-results/                    # 검토 후 보존하기로 결정한 결과
-├── models/
-├── exports/
-├── metrics/
-├── figures/
-└── samples/
+models/                      # test 로 비교한 것 중 현재 채택한 모델만
+└── <목적>-<방법>-v<버전>.pt
+
+output/                      # 보고서·발표에 바로 쓸 결과물
+├── README.md                # 하위 폴더 목록과 각각 무엇인지 한 줄 설명
+├── <용도-설명>/
+└── <용도-설명>/
 ```
 
-- `test/cases/`는 보존하고 `test/output/`만 `.gitignore`에 등록한다.
-- `results/`에는 대표 결과만 승격한다. 모든 epoch와 중간 출력은 넣지 않는다.
-- 최종 모델은 `results/models/`에 두고 모델 카드 또는 간단한 설명을 함께 남긴다.
-- 대용량 원본 데이터셋은 `assets/`나 `test/`에 복사하지 않는다.
+- `test/`는 통째로 `.gitignore`에 등록한다. epoch 마다의 중간 산출물도 여기 머문다.
+- `test/models/`는 **비교를 위해** 여러 실험의 체크포인트를 모아두는 곳이다.
+  최종 채택 전까지는 여기서만 관리한다. **체크포인트(.pt/.pth) 파일은 반드시 여기로
+  복사(copy)해서 남긴다 — 이동(move)해서 원본 `test/<실험명>/`쪽 사본을 없애지 않는다.**
+  실수로 `test/models/`를 지워도 `test/<실험명>/`에 원본이 남아있어야 한다.
+- `test/tmp/`는 정식 번호 실험이 아닌 디버그·스모크 테스트·중간에 실패한 시도를 모은다.
+  이름 규칙이 없고 언제든 지워도 된다 — `test/` 바로 아래에 흩어놓지 않고 여기로 모은다.
+- `test/log/`는 체크포인트를 만들지 않는 실행(기존 체크포인트로 다시 돌린 평가 등)의
+  로그·수치 결과를 남긴다. 학습(체크포인트 생성)은 `test/<실험명>/`에, 평가 전용
+  실행은 `test/log/`에 둔다.
+- `models/`는 **지금 쓰는 모델만** 남긴다 — 여러 버전을 쌓아두는 곳이 아니다.
+  더 나은 모델이 나오면 이전 것을 교체한다(옛 버전은 `test/models/`에 이미 남아 있다).
+  모델 카드 또는 간단한 설명을 함께 남긴다.
+- `output/`는 사람이 읽을 결과물(비교 영상, 표, 그림)만 담는다. 원시 로그나 중간
+  체크포인트는 넣지 않는다 — 그런 건 `test/`다. 하위 폴더는 `docs/`처럼 **용도가
+  드러나는 이름 + README 한 줄 설명**을 갖춘다.
+- 대용량 원본 데이터셋은 `test/`나 `output/`에 복사하지 않는다.
 
-### 3.3 SAM3 적용 예시
-
-현재 `SAM3/sam3` 저장소를 기준으로 하면 목표 구조는 다음과 같다.
+### 3.3 YOLinO 적용 예시 (신규 골격)
 
 ```text
-vision-seg/sam3/
+vision-det/YOLinO/
 ├── README.md
-├── src/                            # 현재 SAM3/sam3 Git 저장소
+├── source/                  # KIT-MRT/YOLinO Git 저장소, 원형 유지
+├── docs/
+│   ├── README.md
+│   └── 01-model-review/
+│       ├── 1. YOLinO 핵심 아이디어 요약.md
+│       └── 2. si_vietnam_drone 적용 가능성 검토.md
+├── scripts/
+│   ├── 01-data/              # 원본 폴리라인 → YOLinO 라벨 변환
+│   ├── 02-train/
+│   └── 03-inference/
+├── test/
+│   ├── 001-train-60ep/          # 정식 실험 (raw output)
+│   ├── models/                  # 001-train-60ep/best_model.pth 등 (복사본)
+│   ├── tmp/                     # 디버그·스모크 테스트·실패한 시도
+│   └── log/                     # 체크포인트 없는 평가 전용 실행 로그
+├── models/
+└── output/
+    └── README.md
+```
+
+### 3.4 이전 골격 (기존 프로젝트만 해당, 새 프로젝트에는 쓰지 않음)
+
+SAM3 등 2026-09-16 이전에 만든 프로젝트는 `config/` · `assets/` · `archive/` 와
+`test/{cases,output}` + `results/{models,exports,metrics,figures,samples}` 골격을 그대로 쓴다.
+자동으로 옮기지 않는다(문서 맨 위 원칙).
+
+```text
+vision-seg/sam3/                     # 예시 — 이전 골격
+├── README.md
+├── source/                         # 현재 SAM3/sam3 Git 저장소
 ├── scripts/
 │   ├── batch-multiclass-yolo.py   # 현재 sam3_batch_multiclass_yolo.py
 │   └── batch-solid-white-lane.py  # 현재 sam3_batch_solid_white_lane.py
@@ -162,25 +322,29 @@ vision-seg/sam3/
 ├── docs/
 ├── assets/
 ├── test/
-│   ├── cases/
-│   └── output/
+│   ├── cases/                      # 보존, 테스트 코드·fixture
+│   └── output/                     # 재생성 가능, .gitignore
 │       ├── images/
 │       └── videos/
-├── results/
+├── results/                        # 검토 후 채택한 결과
 │   ├── models/
 │   ├── figures/
 │   └── samples/
 └── archive/
 ```
 
-`src/` 내부에 이미 존재하는 upstream `assets/`, `examples/`, `scripts/`는 원본 저장소 구성으로 유지한다. 프로젝트 루트의 `scripts/`와 `assets/`는 사용자가 직접 관리하는 파일만 담는다.
+`source/` 내부에 이미 존재하는 upstream `assets/`, `examples/`, `scripts/`는 원본 저장소 구성으로 유지한다. 프로젝트 루트의 `scripts/`와 `assets/`는 사용자가 직접 관리하는 파일만 담는다.
 
 ## 4. 실험 결과 이름
 
-반복 실험은 `test/output/`에서 수행하고, 보존할 실험만 `results/experiments/`로 옮긴다. 이름은 `순번-핵심변경점` 형식을 사용한다.
+> 신규 골격(3.2)에서는 모든 실험을 `test/` 안에서 수행한다 — 보존용으로 옮기는 별도
+> 폴더가 없다. 그중 채택한 모델 하나만 `models/`로 승격한다(9절). 이전 골격은
+> `results/experiments/`를 썼다(3.4).
+
+이름은 `순번-핵심변경점` 형식을 사용한다.
 
 ```text
-results/experiments/
+test/                     # 신규 골격. 이전 골격은 results/experiments/
 ├── 001-yolo11-baseline/
 ├── 002-piou/
 ├── 003-piou-c3k2/
@@ -192,15 +356,19 @@ results/experiments/
 
 ### 실험 내부 구조
 
+신규 골격에서는 체크포인트(`weights/`)를 실험 폴더가 아니라 같은 이름의
+`test/models/003-piou-c3k2/`에 둔다(3.2) — 실험 폴더는 가볍게 유지된다.
+
 ```text
-003-piou-c3k2/
+test/003-piou-c3k2/
 ├── config.yaml
 ├── metrics.csv
-├── weights/
-│   ├── best.pt
-│   └── last.pt
 ├── figures/
 └── logs/
+
+test/models/003-piou-c3k2/
+├── best.pt
+└── last.pt
 ```
 
 학습과 검증은 별도 실험으로 나누지 않는다.
@@ -398,13 +566,17 @@ GT 패널에 보이는 것이 원본 라벨이 아니라 **변환된 마스크**
 
 ## 9. 모델 보관 규칙
 
-모든 학습 체크포인트는 임시 실행 중에는 `test/output/`에 둔다. 실제 사용할 최종 모델만 해당 프로젝트의 `results/models/`로 승격한다.
+모든 학습 체크포인트는 실험 중엔 `test/models/<실험명>/`에 둔다(3.2). 여러 실험을
+비교한 뒤 **현재 채택한 모델 하나만** 프로젝트의 `models/`로 승격한다. 새 모델이
+더 나으면 `models/`의 내용을 교체한다 — 옛 버전은 `test/models/`에 이미 남아 있으므로
+따로 보관할 필요가 없다.
 
 ```text
-vision-det/small-object-detection/results/models/
-├── sod-piou-v1.pt
-└── sod-star-v2.engine
+vision-det/small-object-detection/models/
+└── sod-piou-v1.pt          # 현재 채택 모델. 다음 승격 때 교체됨
 ```
+
+(이전 골격은 `results/models/`에 여러 버전을 함께 두었다. 3.4)
 
 최종 모델 파일명은 다음 형식을 권장한다.
 
@@ -419,7 +591,7 @@ vision-det/small-object-detection/results/models/
 | 상태 | 기존 또는 현재 경로 | 권장 또는 적용 위치 |
 |---|---|---|
 | 이전 완료 | `SAM3` | `vision-seg/sam3` |
-| 이전 완료 | `SAM3/sam3` Git 저장소 | `vision-seg/sam3/src` |
+| 이전 완료 | `SAM3/sam3` Git 저장소 | `vision-seg/sam3/source` |
 | 이전 완료 | `YOLO-MASTER` | `vision-det/YOLO-MASTER` |
 | 이전 완료 | `YOLO26-MASTER` | `vision-det/YOLO26-MASTER` |
 | 이전 완료 | `Yolo11` | `vision-det/Yolo11` |
@@ -457,7 +629,7 @@ vision-det/small-object-detection/results/models/
 1. `PROJECTS.md`를 만들고 현재 연구를 분야별로 등록한다.
 2. 새 프로젝트부터 표준 골격을 적용한다.
 3. `SAM3`처럼 작고 구조가 분명한 프로젝트 하나로 먼저 시험한다.
-4. Git 원본을 `src/`, 사용자 코드를 `scripts/`로 분리한다.
+4. Git 원본을 `source/`, 사용자 코드를 `scripts/`로 분리한다.
 5. 기존 경로에는 임시 심볼릭 링크를 두어 호환성을 유지한다.
 6. 데이터셋의 원본과 복사본을 구분하고 마지막에 이동한다.
 7. 이동 후 학습·평가 스크립트의 smoke test를 실행한다.
@@ -467,14 +639,15 @@ vision-det/small-object-detection/results/models/
 
 - 프로젝트 이름만 보고 연구 목적을 이해할 수 있는가?
 - 각 프로젝트에 최신 `README.md`가 있는가?
-- Git 원본 저장소가 프로젝트의 `src/`에 분리되어 있는가?
+- Git 원본 저장소가 프로젝트의 `source/`에 분리되어 있는가?
 - 직접 작성한 실행 코드가 `scripts/`에 모여 있는가?
-- 임시 출력은 `test/output/`, 채택한 결과는 `results/`에 있는가?
-- 보존한 실험이 `001-...`, `002-...` 순서로 정리되어 있는가?
+- (신규 골격) 실험은 `test/`, 채택한 모델은 `models/`, 보고서용 산출물은 `output/`에 있는가?
+  (이전 골격 프로젝트는 `test/output/` / `results/` 기준을 그대로 쓴다 — 3.4)
+- 실험이 `001-...`, `002-...` 순서로 정리되어 있는가?
 - `final`, `new`, `test2`, `train10` 같은 이름이 남아 있지 않은가?
 - 데이터셋 원본이 여러 프로젝트에 복사되어 있지 않은가?
-- 최종 모델과 중간 체크포인트가 구분되어 있는가?
-- 종료된 연구가 `archive/`에 분리되어 있는가?
+- `models/`에 **지금 채택한 모델만** 있고, 비교용 나머지는 `test/models/`에 있는가?
+- (신규 골격) `docs/` 파일명이 `NN-역할이름/` 폴더 안에서 `1. 한글설명.md` 형식인가?
 - `PROJECTS.md`에서 현재 연구 상태를 한눈에 볼 수 있는가?
 - **모든 분할에 `vis/` 30장과 `SPLIT.md`가 있는가? (8.1~8.2절)**
 - **영상 프레임 데이터를 클립 단위로 나눴는가? (8.3절)**
