@@ -1,0 +1,33 @@
+{
+ "split": "val",
+ "n_img": 1961,
+ "match_thr": 20.0,
+ "checkpoint": "/home/hsjeong/workspace/vision-det/GANet/test/016-openlane-res34-2cls-1280-P3del-noempty-150ep/epoch_10.pth",
+ "pos": {
+  "pred": 3062,
+  "gt": 6979,
+  "match": 2861,
+  "precision": 0.934356629653821,
+  "recall": 0.4099441180684912,
+  "f1": 0.5698635594064336,
+  "cls_acc": 0.9622509612023767,
+  "avg_dist_px": 4.641359105295026
+ },
+ "solid": {
+  "pred": 1916,
+  "gt": 4165,
+  "match": 1762,
+  "precision": 0.9196242171189979,
+  "recall": 0.4230492196878752,
+  "f1": 0.5795099490215425
+ },
+ "dashed": {
+  "pred": 1146,
+  "gt": 2814,
+  "match": 1005,
+  "precision": 0.8769633507853403,
+  "recall": 0.35714285714285715,
+  "f1": 0.5075757575757576
+ },
+ "mF1": 0.54354285329865
+}

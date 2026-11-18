@@ -1,0 +1,1 @@
+epoch=10 RESULT split=val n_img=1961 thr=20 | pos P=0.9374 R=0.3516 F1=0.5114 cls_acc=0.9662 dist=4.77 | solid P=0.9033 R=0.4082 F1=0.5623 | dashed P=0.9130 R=0.2388 F1=0.3786 | mF1=0.4704

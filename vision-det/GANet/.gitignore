@@ -1,0 +1,30 @@
+# vision-research 저장소 안의 GANet 프로젝트.
+# source/ 는 GANet 원본(Wolfwjs/GANet) + 수정 코드를 일반 파일로 추적한다 (EoMT 와 같은 방식).
+# source 의 원래 git 이력은 test/code-backup-20261118/source.git 에 보관.
+
+# 체크포인트·채택 모델: git 대신 백업
+models/
+*.pth
+*.pt
+
+# test/: 실험 폴더 안의 eval/(epoch별 F1 로그)와 학습 config 사본만 올림
+test/*
+!test/*/
+test/*/*
+!test/*/eval/
+!test/*/*.py
+test/code-backup-*/
+test/tmp/
+
+# output/: README 와 보고서용 그림 폴더(04·06·07)만 올림. 영상·epoch별 val 이미지는 백업
+output/*/*
+!output/*/README.md
+!output/04-*/**
+!output/06-*/**
+!output/07-*/**
+*.mp4
+*.avi
+
+__pycache__/
+*.pyc
+node_modules/

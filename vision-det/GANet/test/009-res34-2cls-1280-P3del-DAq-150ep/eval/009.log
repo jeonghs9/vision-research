@@ -1,0 +1,58 @@
+=== epoch 10
+  warnings.warn(msg, UndefinedMetricWarning)
+/home/hsjeong/miniconda3/envs/ganet_cu101/lib/python3.8/site-packages/sklearn/metrics/_regression.py:996: UndefinedMetricWarning: R^2 score is not well-defined with less than two samples.
+  warnings.warn(msg, UndefinedMetricWarning)
+RESULT n_img=163 pred=724 gt=1030 matched=660 precision=0.9116 recall=0.6408 f1=0.7526 avg_match_dist_px=8.94
+=== epoch 20
+  warnings.warn(msg, UndefinedMetricWarning)
+/home/hsjeong/miniconda3/envs/ganet_cu101/lib/python3.8/site-packages/sklearn/metrics/_regression.py:996: UndefinedMetricWarning: R^2 score is not well-defined with less than two samples.
+  warnings.warn(msg, UndefinedMetricWarning)
+RESULT n_img=163 pred=705 gt=1030 matched=641 precision=0.9092 recall=0.6223 f1=0.7389 avg_match_dist_px=8.71
+=== epoch 30
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_30.pth
+/home/hsjeong/miniconda3/envs/ganet_cu101/lib/python3.8/site-packages/sklearn/metrics/_regression.py:996: UndefinedMetricWarning: R^2 score is not well-defined with less than two samples.
+  warnings.warn(msg, UndefinedMetricWarning)
+RESULT n_img=163 pred=717 gt=1030 matched=633 precision=0.8828 recall=0.6146 f1=0.7247 avg_match_dist_px=7.24
+=== epoch 40
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_40.pth
+/home/hsjeong/miniconda3/envs/ganet_cu101/lib/python3.8/site-packages/sklearn/metrics/_regression.py:996: UndefinedMetricWarning: R^2 score is not well-defined with less than two samples.
+  warnings.warn(msg, UndefinedMetricWarning)
+RESULT n_img=163 pred=767 gt=1030 matched=678 precision=0.8840 recall=0.6583 f1=0.7546 avg_match_dist_px=7.22
+=== epoch 50
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_50.pth
+RESULT n_img=163 pred=710 gt=1030 matched=632 precision=0.8901 recall=0.6136 f1=0.7264 avg_match_dist_px=7.04
+=== epoch 60
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_60.pth
+/home/hsjeong/miniconda3/envs/ganet_cu101/lib/python3.8/site-packages/sklearn/metrics/_regression.py:996: UndefinedMetricWarning: R^2 score is not well-defined with less than two samples.
+  warnings.warn(msg, UndefinedMetricWarning)
+RESULT n_img=163 pred=791 gt=1030 matched=687 precision=0.8685 recall=0.6670 f1=0.7545 avg_match_dist_px=7.31
+=== epoch 70
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_70.pth
+RESULT n_img=163 pred=771 gt=1030 matched=663 precision=0.8599 recall=0.6437 f1=0.7363 avg_match_dist_px=7.13
+=== epoch 80
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_80.pth
+RESULT n_img=163 pred=724 gt=1030 matched=648 precision=0.8950 recall=0.6291 f1=0.7389 avg_match_dist_px=6.97
+=== epoch 90
+  warnings.warn(msg, UndefinedMetricWarning)
+/home/hsjeong/miniconda3/envs/ganet_cu101/lib/python3.8/site-packages/sklearn/metrics/_regression.py:996: UndefinedMetricWarning: R^2 score is not well-defined with less than two samples.
+  warnings.warn(msg, UndefinedMetricWarning)
+RESULT n_img=163 pred=782 gt=1030 matched=669 precision=0.8555 recall=0.6495 f1=0.7384 avg_match_dist_px=7.09
+=== epoch 100
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_100.pth
+RESULT n_img=163 pred=750 gt=1030 matched=682 precision=0.9093 recall=0.6621 f1=0.7663 avg_match_dist_px=6.86
+=== epoch 110
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_110.pth
+RESULT n_img=163 pred=784 gt=1030 matched=695 precision=0.8865 recall=0.6748 f1=0.7663 avg_match_dist_px=7.02
+=== epoch 120
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_120.pth
+RESULT n_img=163 pred=738 gt=1030 matched=668 precision=0.9051 recall=0.6485 f1=0.7557 avg_match_dist_px=6.72
+=== epoch 130
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_130.pth
+RESULT n_img=163 pred=722 gt=1030 matched=659 precision=0.9127 recall=0.6398 f1=0.7523 avg_match_dist_px=7.13
+=== epoch 140
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_140.pth
+RESULT n_img=163 pred=754 gt=1030 matched=684 precision=0.9072 recall=0.6641 f1=0.7668 avg_match_dist_px=6.91
+=== epoch 150
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/009-res34-2cls-1280-P3del-DAq-150ep/epoch_150.pth
+RESULT n_img=163 pred=751 gt=1030 matched=684 precision=0.9108 recall=0.6641 f1=0.7681 avg_match_dist_px=7.01
+DONE

@@ -1,0 +1,14 @@
+/work_dirs
+/pr_models
+/.vscode
+/show*
+/.ipynb_checkpoints
+/.dist_test
+projects/plugin/core/evaluation/culane_evaluate/evaluate # Need to run `make` again in projects/plugin/core/evaluation/culane_evaluate
+output.txt
+/*.egg-info
+/projects/plugin/ops/dcn/*.so
+cookies.txt
+**/__pycache__/**
+/build
+a.txt

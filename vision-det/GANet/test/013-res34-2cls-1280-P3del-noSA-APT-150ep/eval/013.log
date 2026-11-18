@@ -1,0 +1,50 @@
+=== epoch 10
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_10.pth
+RESULT n_img=163 pred=556 gt=1030 matched=529 precision=0.9514 recall=0.5136 f1=0.6671 avg_match_dist_px=8.97
+=== epoch 20
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_20.pth
+RESULT n_img=163 pred=780 gt=1030 matched=674 precision=0.8641 recall=0.6544 f1=0.7448 avg_match_dist_px=8.40
+=== epoch 30
+  warnings.warn(msg, UndefinedMetricWarning)
+/home/hsjeong/miniconda3/envs/ganet_cu101/lib/python3.8/site-packages/sklearn/metrics/_regression.py:996: UndefinedMetricWarning: R^2 score is not well-defined with less than two samples.
+  warnings.warn(msg, UndefinedMetricWarning)
+RESULT n_img=163 pred=766 gt=1030 matched=675 precision=0.8812 recall=0.6553 f1=0.7517 avg_match_dist_px=7.81
+=== epoch 40
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_40.pth
+RESULT n_img=163 pred=744 gt=1030 matched=674 precision=0.9059 recall=0.6544 f1=0.7599 avg_match_dist_px=7.94
+=== epoch 50
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_50.pth
+RESULT n_img=163 pred=807 gt=1030 matched=693 precision=0.8587 recall=0.6728 f1=0.7545 avg_match_dist_px=7.58
+=== epoch 60
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_60.pth
+RESULT n_img=163 pred=776 gt=1030 matched=670 precision=0.8634 recall=0.6505 f1=0.7420 avg_match_dist_px=7.44
+=== epoch 70
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_70.pth
+RESULT n_img=163 pred=706 gt=1030 matched=662 precision=0.9377 recall=0.6427 f1=0.7627 avg_match_dist_px=6.95
+=== epoch 80
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_80.pth
+RESULT n_img=163 pred=722 gt=1030 matched=675 precision=0.9349 recall=0.6553 f1=0.7705 avg_match_dist_px=7.27
+=== epoch 90
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_90.pth
+RESULT n_img=163 pred=720 gt=1030 matched=669 precision=0.9292 recall=0.6495 f1=0.7646 avg_match_dist_px=7.23
+=== epoch 100
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_100.pth
+/home/hsjeong/miniconda3/envs/ganet_cu101/lib/python3.8/site-packages/sklearn/metrics/_regression.py:996: UndefinedMetricWarning: R^2 score is not well-defined with less than two samples.
+  warnings.warn(msg, UndefinedMetricWarning)
+RESULT n_img=163 pred=770 gt=1030 matched=687 precision=0.8922 recall=0.6670 f1=0.7633 avg_match_dist_px=7.48
+=== epoch 110
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_110.pth
+RESULT n_img=163 pred=733 gt=1030 matched=673 precision=0.9181 recall=0.6534 f1=0.7635 avg_match_dist_px=6.98
+=== epoch 120
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_120.pth
+RESULT n_img=163 pred=738 gt=1030 matched=667 precision=0.9038 recall=0.6476 f1=0.7545 avg_match_dist_px=7.38
+=== epoch 130
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_130.pth
+RESULT n_img=163 pred=748 gt=1030 matched=681 precision=0.9104 recall=0.6612 f1=0.7660 avg_match_dist_px=6.96
+=== epoch 140
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_140.pth
+RESULT n_img=163 pred=723 gt=1030 matched=672 precision=0.9295 recall=0.6524 f1=0.7667 avg_match_dist_px=6.75
+=== epoch 150
+load checkpoint from local path: /home/hsjeong/workspace/vision-det/GANet/test/013-res34-2cls-1280-P3del-noSA-APT-150ep/epoch_150.pth
+RESULT n_img=163 pred=732 gt=1030 matched=682 precision=0.9317 recall=0.6621 f1=0.7741 avg_match_dist_px=7.02
+DONE

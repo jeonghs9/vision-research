@@ -1,0 +1,16 @@
+006 ep10 RESULT n_img=163 pred=654 gt=1030 matched=577 precision=0.8823 recall=0.5602 f1=0.6853 avg_match_dist_px=11.14
+006 ep20 RESULT n_img=163 pred=780 gt=1030 matched=670 precision=0.8590 recall=0.6505 f1=0.7403 avg_match_dist_px=7.64
+006 ep30 RESULT n_img=163 pred=745 gt=1030 matched=664 precision=0.8913 recall=0.6447 f1=0.7482 avg_match_dist_px=7.29
+006 ep40 RESULT n_img=163 pred=738 gt=1030 matched=671 precision=0.9092 recall=0.6515 f1=0.7590 avg_match_dist_px=7.20
+006 ep50 RESULT n_img=163 pred=728 gt=1030 matched=670 precision=0.9203 recall=0.6505 f1=0.7622 avg_match_dist_px=7.13
+006 ep60 RESULT n_img=163 pred=750 gt=1030 matched=675 precision=0.9000 recall=0.6553 f1=0.7584 avg_match_dist_px=7.24
+006 ep70 RESULT n_img=163 pred=769 gt=1030 matched=684 precision=0.8895 recall=0.6641 f1=0.7604 avg_match_dist_px=6.75
+006 ep80 RESULT n_img=163 pred=726 gt=1030 matched=651 precision=0.8967 recall=0.6320 f1=0.7415 avg_match_dist_px=7.22
+006 ep90 RESULT n_img=163 pred=738 gt=1030 matched=671 precision=0.9092 recall=0.6515 f1=0.7590 avg_match_dist_px=7.09
+006 ep100 RESULT n_img=163 pred=775 gt=1030 matched=679 precision=0.8761 recall=0.6592 f1=0.7524 avg_match_dist_px=7.12
+006 ep110 RESULT n_img=163 pred=772 gt=1030 matched=678 precision=0.8782 recall=0.6583 f1=0.7525 avg_match_dist_px=7.18
+006 ep120 RESULT n_img=163 pred=758 gt=1030 matched=674 precision=0.8892 recall=0.6544 f1=0.7539 avg_match_dist_px=6.86
+006 ep130 RESULT n_img=163 pred=737 gt=1030 matched=671 precision=0.9104 recall=0.6515 f1=0.7595 avg_match_dist_px=6.77
+006 ep140 RESULT n_img=163 pred=720 gt=1030 matched=667 precision=0.9264 recall=0.6476 f1=0.7623 avg_match_dist_px=6.65
+006 ep150 RESULT n_img=163 pred=731 gt=1030 matched=674 precision=0.9220 recall=0.6544 f1=0.7655 avg_match_dist_px=6.65
+004 ep130 RESULT n_img=163 pred=751 gt=1030 matched=665 precision=0.8855 recall=0.6456 f1=0.7468 avg_match_dist_px=6.93
