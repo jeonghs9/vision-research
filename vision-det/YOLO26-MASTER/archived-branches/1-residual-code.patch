@@ -1,0 +1,148 @@
+diff --git a/vision-det/YOLO26-MASTER/ultralytics/models/yolo/detect/train.py b/vision-det/YOLO26-MASTER/ultralytics/models/yolo/detect/train.py
+index 28da597..2a86044 100644
+--- a/vision-det/YOLO26-MASTER/ultralytics/models/yolo/detect/train.py
++++ b/vision-det/YOLO26-MASTER/ultralytics/models/yolo/detect/train.py
+@@ -185,7 +185,7 @@ class DetectionTrainer(BaseTrainer):
+ 
+     def get_validator(self):
+         """Return a DetectionValidator for YOLO model validation."""
+-        self.loss_names = "box_loss", "cls_loss", "dfl_loss"
++        self.loss_names = "box_loss", "cls_loss", "dfl_loss", "moe_loss"
+         return yolo.detect.DetectionValidator(
+             self.test_loader, save_dir=self.save_dir, args=copy(self.args), _callbacks=self.callbacks
+         )
+diff --git a/vision-det/YOLO26-MASTER/ultralytics/nn/modules/moe/modules.py b/vision-det/YOLO26-MASTER/ultralytics/nn/modules/moe/modules.py
+index 14b082a..38a7c9d 100644
+--- a/vision-det/YOLO26-MASTER/ultralytics/nn/modules/moe/modules.py
++++ b/vision-det/YOLO26-MASTER/ultralytics/nn/modules/moe/modules.py
+@@ -325,6 +325,15 @@ class ES_MOE(nn.Module):
+             [EfficientExpertGroup(in_channels, out_channels, kernel_size=k) for k in ks]
+         )
+ 
++        # Shared expert (always-active depthwise-separable path)
++        self.shared_expert = nn.Sequential(
++            nn.Conv2d(in_channels, out_channels, 3, padding=1, groups=in_channels, bias=False),  # DWConv
++            nn.BatchNorm2d(out_channels),
++            nn.SiLU(inplace=True),
++            nn.Conv2d(out_channels, out_channels, 1, bias=False),  # PWConv
++            nn.BatchNorm2d(out_channels),
++        )
++
+         # Output normalization (original design)
+         self.norm = nn.Sequential(
+             nn.BatchNorm2d(out_channels),
+@@ -353,10 +362,8 @@ class ES_MOE(nn.Module):
+ 
+         # Different forward strategies for train/infer
+         if self.training or not self.use_top_k or not self.use_sparse_inference:
+-            # Train mode or no Top-K or no sparse inference: dense compute
+-            final_output = self._dense_forward(x, routing_weights)
++            final_output = self._residual_aggregation(x, routing_weights)
+         else:
+-            # Infer mode + Top-K + sparse inference: compute Top-K experts only
+             final_output = self._sparse_forward(x, routing_weights.detach())
+ 
+         if not hasattr(self, "norm"):
+@@ -382,6 +389,21 @@ class ES_MOE(nn.Module):
+             weight = routing_weights[:, i:i + 1, :, :]
+             final_output = final_output + expert_out * weight
+         return final_output
++    
++
++    # HS
++    def _residual_aggregation(self, x, routing_weights):
++        # Shared expert는 항상 활성화 (공통 feature 추출)
++        shared_out = self.shared_expert(x)
++        
++        # Routed experts는 residual로 추가
++        routed_out = 0
++        for i, expert in enumerate(self.experts):
++            expert_out = expert(x)
++            weight = routing_weights[:, i:i+1, :, :]
++            routed_out = routed_out + expert_out * weight
++        
++        return shared_out + routed_out  # residual connection
+ 
+     def _sparse_forward(self, x, routing_weights):
+         """Sparse forward: compute only Top-K experts (used during inference)."""
+diff --git a/vision-det/YOLO26-MASTER/ultralytics/utils/loss.py b/vision-det/YOLO26-MASTER/ultralytics/utils/loss.py
+index 74a9ee8..4855112 100644
+--- a/vision-det/YOLO26-MASTER/ultralytics/utils/loss.py
++++ b/vision-det/YOLO26-MASTER/ultralytics/utils/loss.py
+@@ -407,7 +407,7 @@ class v8DetectionLoss:
+         """Calculate the sum of the loss for box, cls and dfl multiplied by batch size and return foreground mask and
+         target indices.
+         """
+-        loss = torch.zeros(3, device=self.device)  # box, cls, dfl
++        loss = torch.zeros(4, device=self.device)  # box, cls, dfl, moe
+         pred_distri, pred_scores = (
+             preds["boxes"].permute(0, 2, 1).contiguous(),
+             preds["scores"].permute(0, 2, 1).contiguous(),
+@@ -484,12 +484,11 @@ class v8DetectionLoss:
+     def loss(self, preds: dict[str, torch.Tensor], batch: dict[str, torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+         """Calculate detection loss using assigned targets."""
+         batch_size = preds["boxes"].shape[0]
+-        loss, loss_detach = self.get_assigned_targets_and_loss(preds, batch)[1:]
++        loss, _ = self.get_assigned_targets_and_loss(preds, batch)[1:]
+         moe_gain = float(getattr(self.hyp, "moe", 0.0) or 0.0)
+         if moe_gain and not getattr(self.model, "end2end", False):
+-            loss = loss.clone()
+-            loss[0] = loss[0] + self.moe_aux_loss() * moe_gain
+-        return loss * batch_size, loss_detach
++            loss[3] = self.moe_aux_loss() * moe_gain
++        return loss * batch_size, loss.detach()
+ 
+ 
+ class v8SegmentationLoss(v8DetectionLoss):
+@@ -510,8 +509,8 @@ class v8SegmentationLoss(v8DetectionLoss):
+         else:
+             pred_semseg = None
+         (fg_mask, target_gt_idx, target_bboxes, _, _), det_loss, _ = self.get_assigned_targets_and_loss(preds, batch)
+-        # NOTE: re-assign index for consistency for now. Need to be removed in the future.
+-        loss[0], loss[2], loss[3] = det_loss[0], det_loss[1], det_loss[2]
++        # NOTE: re-assign index for consistency: det_loss=[box,cls,dfl,moe] → loss=[box,seg,cls,dfl,semseg]
++        loss[0], loss[2], loss[3] = det_loss[0], det_loss[1], det_loss[2]  # box, cls, dfl
+ 
+         batch_size, _, mask_h, mask_w = proto.shape  # batch size, number of masks, mask height, mask width
+         if fg_mask.sum():
+@@ -1189,6 +1188,10 @@ class E2ELoss:
+         self.o2m_copy = self.o2m
+         # final gain
+         self.final_o2m = 0.1
++        # MoE loss cosine decay: 0.3 → 0.05 (from YOLO-MASTER)
++        self.moe_gain_init = 0.3
++        self.moe_gain_final = 0.05
++        self.moe_gain = self.moe_gain_init
+ 
+     def __call__(self, preds: Any, batch: dict[str, torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+         """Calculate the sum of the loss for box, cls and dfl multiplied by batch size."""
+@@ -1197,16 +1200,25 @@ class E2ELoss:
+         loss_one2many = self.one2many.loss(one2many, batch)
+         loss_one2one = self.one2one.loss(one2one, batch)
+         loss = loss_one2many[0] * self.o2m + loss_one2one[0] * self.o2o
+-        moe_gain = float(getattr(self.one2one.hyp, "moe", 0.0) or 0.0)
+-        if moe_gain:
+-            loss = loss + self.one2one.moe_aux_loss() * moe_gain
+-        return loss, loss_one2one[1]
++        loss_detach = loss_one2one[1]
++        moe_enabled = float(getattr(self.one2one.hyp, "moe", 0.0) or 0.0) > 0
++        if moe_enabled:
++            moe_loss = self.one2one.moe_aux_loss() * self.moe_gain
++            batch_size = one2one["boxes"].shape[0]
++            loss[3] = moe_loss * batch_size
++            loss_detach = loss_detach.clone()
++            loss_detach[3] = moe_loss.detach()
++        return loss, loss_detach
+ 
+     def update(self) -> None:
+         """Update the weights for one-to-many and one-to-one losses based on the decay schedule."""
+         self.updates += 1
+         self.o2m = self.decay(self.updates)
+         self.o2o = max(self.total - self.o2m, 0)
++        # MoE gain cosine decay
++        progress = self.updates / max(self.one2one.hyp.epochs - 1, 1)
++        progress = min(progress, 1.0)
++        self.moe_gain = self.moe_gain_final + 0.5 * (self.moe_gain_init - self.moe_gain_final) * (1 + math.cos(math.pi * progress))
+ 
+     def decay(self, x) -> float:
+         """Calculate the decayed weight for one-to-many loss based on the current update step."""

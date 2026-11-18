@@ -1,0 +1,177 @@
+diff --git a/vision-det/YOLO26-MASTER/ultralytics/cfg/models/master/v0/det/yolo26-master-s-noE2E-reg16.yaml b/vision-det/YOLO26-MASTER/ultralytics/cfg/models/master/v0/det/yolo26-master-s-noE2E-reg16.yaml
+new file mode 100644
+index 0000000..6724a96
+--- /dev/null
++++ b/vision-det/YOLO26-MASTER/ultralytics/cfg/models/master/v0/det/yolo26-master-s-noE2E-reg16.yaml
+@@ -0,0 +1,52 @@
++# YOLO26-Master 🚀 AGPL-3.0 License - https://ultralytics.com/license
++
++# YOLO26-based YOLO-Master with ES-MoE and A2C2f modules
++# Combines YOLO26 backbone/head structure with YOLO-Master MoE routing
++# ABLATION: end2end=False, reg_max=16 (classic NMS + DFL) to isolate the e2e regime effect
++
++# Parameters
++nc: 80 # number of classes
++end2end: False # ABLATION: disable YOLO26 end-to-end mode (use NMS)
++reg_max: 16 # ABLATION: classic DFL bins (was 1)
++scales:
++  # [depth, width, max_channels]
++  s: [0.50, 0.50, 1024]
++
++# YOLO26-Master backbone with ES-MoE
++backbone:
++  # [from, repeats, module, args]
++  - [-1, 1, Conv, [64, 3, 2]] # 0-P1/2
++  - [-1, 1, Conv, [128, 3, 2]] # 1-P2/4
++  - [-1, 2, C3k2, [256, False, 0.25]] # 2
++  - [-1, 1, ES_MOE, [256]] # 3
++  - [-1, 1, Conv, [256, 3, 2]] # 4-P3/8
++  - [-1, 2, C3k2, [512, False, 0.25]] # 5
++  - [-1, 1, ES_MOE, [512]] # 6
++  - [-1, 1, Conv, [512, 3, 2]] # 7-P4/16
++  - [-1, 4, A2C2f, [512, True, 4]] # 8
++  - [-1, 1, ES_MOE, [512]] # 9
++  - [-1, 1, Conv, [1024, 3, 2]] # 10-P5/32
++  - [-1, 4, A2C2f, [1024, True, 1]] # 11
++  - [-1, 1, ES_MOE, [1024]] # 12
++  - [-1, 1, SPPF, [1024, 5, 3, True]] # 13
++  - [-1, 2, C2PSA, [1024]] # 14
++
++# YOLO26-Master head
++head:
++  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
++  - [[-1, 9], 1, Concat, [1]] # cat backbone P4
++  - [-1, 2, C3k2, [512, True]] # 17
++
++  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
++  - [[-1, 6], 1, Concat, [1]] # cat backbone P3
++  - [-1, 2, C3k2, [256, True]] # 20 (P3/8-small)
++
++  - [-1, 1, Conv, [256, 3, 2]]
++  - [[-1, 17], 1, Concat, [1]] # cat head P4
++  - [-1, 2, C3k2, [512, True]] # 23 (P4/16-medium)
++
++  - [-1, 1, Conv, [512, 3, 2]]
++  - [[-1, 14], 1, Concat, [1]] # cat head P5
++  - [-1, 1, C3k2, [1024, True, 0.5, True]] # 26 (P5/32-large)
++
++  - [[20, 23, 26], 1, Detect, [nc]] # Detect(P3, P4, P5)
+diff --git a/vision-det/YOLO26-MASTER/ultralytics/models/yolo/detect/train.py b/vision-det/YOLO26-MASTER/ultralytics/models/yolo/detect/train.py
+index 28da597..2a86044 100644
+--- a/vision-det/YOLO26-MASTER/ultralytics/models/yolo/detect/train.py
++++ b/vision-det/YOLO26-MASTER/ultralytics/models/yolo/detect/train.py
+@@ -185,7 +185,7 @@ class DetectionTrainer(BaseTrainer):
+ 
+     def get_validator(self):
+         """Return a DetectionValidator for YOLO model validation."""
+-        self.loss_names = "box_loss", "cls_loss", "dfl_loss"
++        self.loss_names = "box_loss", "cls_loss", "dfl_loss", "moe_loss"
+         return yolo.detect.DetectionValidator(
+             self.test_loader, save_dir=self.save_dir, args=copy(self.args), _callbacks=self.callbacks
+         )
+diff --git a/vision-det/YOLO26-MASTER/ultralytics/utils/loss.py b/vision-det/YOLO26-MASTER/ultralytics/utils/loss.py
+index 74a9ee8..4855112 100644
+--- a/vision-det/YOLO26-MASTER/ultralytics/utils/loss.py
++++ b/vision-det/YOLO26-MASTER/ultralytics/utils/loss.py
+@@ -407,7 +407,7 @@ class v8DetectionLoss:
+         """Calculate the sum of the loss for box, cls and dfl multiplied by batch size and return foreground mask and
+         target indices.
+         """
+-        loss = torch.zeros(3, device=self.device)  # box, cls, dfl
++        loss = torch.zeros(4, device=self.device)  # box, cls, dfl, moe
+         pred_distri, pred_scores = (
+             preds["boxes"].permute(0, 2, 1).contiguous(),
+             preds["scores"].permute(0, 2, 1).contiguous(),
+@@ -484,12 +484,11 @@ class v8DetectionLoss:
+     def loss(self, preds: dict[str, torch.Tensor], batch: dict[str, torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+         """Calculate detection loss using assigned targets."""
+         batch_size = preds["boxes"].shape[0]
+-        loss, loss_detach = self.get_assigned_targets_and_loss(preds, batch)[1:]
++        loss, _ = self.get_assigned_targets_and_loss(preds, batch)[1:]
+         moe_gain = float(getattr(self.hyp, "moe", 0.0) or 0.0)
+         if moe_gain and not getattr(self.model, "end2end", False):
+-            loss = loss.clone()
+-            loss[0] = loss[0] + self.moe_aux_loss() * moe_gain
+-        return loss * batch_size, loss_detach
++            loss[3] = self.moe_aux_loss() * moe_gain
++        return loss * batch_size, loss.detach()
+ 
+ 
+ class v8SegmentationLoss(v8DetectionLoss):
+@@ -510,8 +509,8 @@ class v8SegmentationLoss(v8DetectionLoss):
+         else:
+             pred_semseg = None
+         (fg_mask, target_gt_idx, target_bboxes, _, _), det_loss, _ = self.get_assigned_targets_and_loss(preds, batch)
+-        # NOTE: re-assign index for consistency for now. Need to be removed in the future.
+-        loss[0], loss[2], loss[3] = det_loss[0], det_loss[1], det_loss[2]
++        # NOTE: re-assign index for consistency: det_loss=[box,cls,dfl,moe] → loss=[box,seg,cls,dfl,semseg]
++        loss[0], loss[2], loss[3] = det_loss[0], det_loss[1], det_loss[2]  # box, cls, dfl
+ 
+         batch_size, _, mask_h, mask_w = proto.shape  # batch size, number of masks, mask height, mask width
+         if fg_mask.sum():
+@@ -1189,6 +1188,10 @@ class E2ELoss:
+         self.o2m_copy = self.o2m
+         # final gain
+         self.final_o2m = 0.1
++        # MoE loss cosine decay: 0.3 → 0.05 (from YOLO-MASTER)
++        self.moe_gain_init = 0.3
++        self.moe_gain_final = 0.05
++        self.moe_gain = self.moe_gain_init
+ 
+     def __call__(self, preds: Any, batch: dict[str, torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+         """Calculate the sum of the loss for box, cls and dfl multiplied by batch size."""
+@@ -1197,16 +1200,25 @@ class E2ELoss:
+         loss_one2many = self.one2many.loss(one2many, batch)
+         loss_one2one = self.one2one.loss(one2one, batch)
+         loss = loss_one2many[0] * self.o2m + loss_one2one[0] * self.o2o
+-        moe_gain = float(getattr(self.one2one.hyp, "moe", 0.0) or 0.0)
+-        if moe_gain:
+-            loss = loss + self.one2one.moe_aux_loss() * moe_gain
+-        return loss, loss_one2one[1]
++        loss_detach = loss_one2one[1]
++        moe_enabled = float(getattr(self.one2one.hyp, "moe", 0.0) or 0.0) > 0
++        if moe_enabled:
++            moe_loss = self.one2one.moe_aux_loss() * self.moe_gain
++            batch_size = one2one["boxes"].shape[0]
++            loss[3] = moe_loss * batch_size
++            loss_detach = loss_detach.clone()
++            loss_detach[3] = moe_loss.detach()
++        return loss, loss_detach
+ 
+     def update(self) -> None:
+         """Update the weights for one-to-many and one-to-one losses based on the decay schedule."""
+         self.updates += 1
+         self.o2m = self.decay(self.updates)
+         self.o2o = max(self.total - self.o2m, 0)
++        # MoE gain cosine decay
++        progress = self.updates / max(self.one2one.hyp.epochs - 1, 1)
++        progress = min(progress, 1.0)
++        self.moe_gain = self.moe_gain_final + 0.5 * (self.moe_gain_init - self.moe_gain_final) * (1 + math.cos(math.pi * progress))
+ 
+     def decay(self, x) -> float:
+         """Calculate the decayed weight for one-to-many loss based on the current update step."""
+diff --git a/vision-det/YOLO26-MASTER/ultralytics/utils/metrics.py b/vision-det/YOLO26-MASTER/ultralytics/utils/metrics.py
+index 249cec4..b6a7ebf 100644
+--- a/vision-det/YOLO26-MASTER/ultralytics/utils/metrics.py
++++ b/vision-det/YOLO26-MASTER/ultralytics/utils/metrics.py
+@@ -728,8 +728,18 @@ def compute_ap(recall: list[float], precision: list[float]) -> tuple[float, np.n
+         mrec (np.ndarray): Modified recall curve with sentinel values added at the beginning and end.
+     """
+     # Append sentinel values to beginning and end
+-    mrec = np.concatenate(([0.0], recall, [recall[-1] if len(recall) else 1.0], [1.0]))
+-    mpre = np.concatenate(([1.0], precision, [0.0], [0.0]))
++    # NOTE (2026-06-08): Official ultralytics 8.4.50 (this base) ships a STRICTER compute_ap that
++    # inserts an extra (recall[-1], 0.0) sentinel, dropping precision to 0 at max-recall (no
++    # extrapolation credit). Older versions used by our baselines — stock YOLO26 (8.4.6) and
++    # YOLO-MASTER (8.3.240) — use the standard formula below. The 8.4.50 strict form makes
++    # conf=0.25 mAP ~0.1 lower, so cross-version comparison was misleading. Intentionally reverted
++    # here to the standard formula so YOLO26-MASTER is comparable to those baselines.
++    # # ⚠️ This diverges from official 8.4.50. NOT a porting bug — the port itself was faithful.
++    mrec = np.concatenate(([0.0], recall, [1.0]))                               # 표준 (pre-8.4.50) ← 현재 활성
++    mpre = np.concatenate(([1.0], precision, [0.0]))
++    # [8.4.50 strict] 아래 두 줄 활성화 + 위 두 줄 주석처리 시 공식 8.4.50 동작 (conf=0.25 mAP ~0.1 낮음)
++    # mrec = np.concatenate(([0.0], recall, [recall[-1] if len(recall) else 1.0], [1.0]))
++    # mpre = np.concatenate(([1.0], precision, [0.0], [0.0]))
+ 
+     # Compute the precision envelope
+     mpre = np.flip(np.maximum.accumulate(np.flip(mpre)))
