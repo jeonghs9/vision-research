@@ -1,0 +1,65 @@
+# detect_rider_violation.py 기본 설정
+#
+# 스크립트가 시작할 때 같은 이름의 이 파일을 자동으로 읽는다.
+# 우선순위:  명령줄 인자  >  이 파일  >  코드 내장 기본값
+#
+# 여기 없는 항목(--det-model, --input, --output, --csv, --device)은
+# 실행마다 달라지므로 명령줄로만 받는다.
+
+# ── 검출 ──────────────────────────────────────────────────────────
+detection:
+  imgsz: 2560              # 추론 입력 해상도(32의 배수). 헬멧까지 보려면 2560
+  det_conf: 0.10           # 검출 confidence. 사람·오토바이·헬멧 공통
+  nms_iou: 0.70            # NMS IoU
+  tracker: bytetrack.yaml  # botsort 는 optical flow GMC 때문에 쓰지 않는다
+  person_class: 0
+  motorcycle_class: 2
+  helmet_class: 4
+  person_max_frame_ratio: 0.02   # 사람 박스가 화면의 이 비율을 넘으면 버림(군중 오검출)
+  moto_dedup_ioa: 0.80           # 오토바이 중복 박스 제거 포함비
+
+# ── 탑승자 연관 ───────────────────────────────────────────────────
+association:
+  metric: person_ioa       # person_ioa | min_ioa | iou
+  tau: 0.30                # 탑승자로 인정할 겹침. area(P∩M)/area(P)
+  center_check: true       # 사람 중심이 오토바이 박스 안에 있어야 한다
+  center_margin: 0.0       # 중심 판정 여유분. 0.05 만 줘도 옆에 선 보행자가 통과한다
+  rider_area_min: 0.08     # 탑승자 인정 최소 면적비 area(P)/area(M)
+  rider_area_max: 6.0      # 탑승자 인정 최대 면적비
+  rider_dedup_ioa: 0.75    # 같은 탑승자로 볼 포함비. 1인 탑승 오탐의 주 원인
+  rider_persist: 1         # 검출이 끊겨도 명단에 유지할 프레임 수. 0 이면 끔
+  rider_persist_iou: 0.30  # 명단 매칭 IoU. 트랙 ID 가 바뀌어도 위치로 잇는다
+
+# ── 다인승 판정 ───────────────────────────────────────────────────
+multi_rider:
+  min_riders: 2            # 위반이 되는 최소 탑승자 수
+  window: 15               # 트랙별 누적 윈도우(프레임)
+  ratio: 0.60              # 윈도우 안 후보 비율. 이 값 이상이면 확정
+  min_samples: 8           # 판정을 시작하는 최소 관측 프레임
+
+# ── 헬멧 미착용 판정 ──────────────────────────────────────────────
+helmet:
+  enabled: true            # false 면 다인승만 수행
+  conf: 0.10               # 헬멧 전용 confidence
+  head_ratio: 0.45         # 머리 구간 = 사람 박스 상단 이 비율
+  tau: 0.50                # 착용으로 볼 IoA = area(헬멧∩머리구간)/area(헬멧)
+  dedup_ioa: 0.80          # 헬멧 중복 박스 제거 포함비
+  min_person_height: 40.0  # 사람 박스가 이보다 낮으면 판정 불가
+  border_margin: 20.0      # 화면 경계 이 거리 안이면 판정 불가
+  window: 15               # 미착용 누적 윈도우
+  ratio: 0.60              # 윈도우 안 미착용 비율
+  min_samples: 8           # 미착용 판정 최소 관측
+
+# ── 출력 ──────────────────────────────────────────────────────────
+output:
+  scale: 0.5               # 결과 영상 저장 배율. 판정은 원본 해상도에서 수행
+  compress: false          # 저장 후 H.264 재인코딩 여부
+  video_crf: 23            # 재인코딩 품질. 낮을수록 고화질·큰 용량
+
+# ── 화면 표시 ─────────────────────────────────────────────────────
+# 기본은 빨강(다인승)·노랑(헬멧 미착용)만 그린다.
+render:
+  label: false             # 박스 위 글자와 상단 배너
+  draw_all: false          # 정상 오토바이(파랑)·사람(회색)
+  draw_helmet: false       # 검출된 헬멧 박스(주황)
+  debug_helmet: false      # 헬멧 박스만 그린다. 위반 표시는 모두 끔

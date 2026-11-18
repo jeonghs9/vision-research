@@ -74,13 +74,14 @@ def mask_geometry(polygon: np.ndarray) -> tuple[float, float, float]:
 
 # 차선 seg 모델 및 ocr 모델
 
-DEFAULT_LPR_DIR = Path(
+APPLICATION_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_OCR_CACHE_DIR = Path(
     os.environ.get(
-        "OCR_CAR_CATEGORY_LPR_DIR",
-        "/home/hsjeong/workspace/Yolo26/ultralytics/UTIL/LPR/License-Plate-Recognition-System",
+        "TRAFFIC_VIDEO_OCR_CACHE_DIR",
+        APPLICATION_ROOT / "models" / "runtime-cache" / "ocr",
     )
 )
-DEFAULT_PADDLE_CACHE_DIR = DEFAULT_LPR_DIR / ".paddleocr-cache"
+DEFAULT_PADDLE_CACHE_DIR = DEFAULT_OCR_CACHE_DIR / ".paddleocr-cache"
 PADDLE_DET_MODEL = None
 PADDLE_REC_MODEL = None
 
@@ -355,9 +356,9 @@ def draw_plate_text(frame, xyxy, text, scale=1.4, thickness=3):
 
 
 def _prepare_paddleocr_environment() -> None:
-    """Apply the legacy OCR cache settings immediately before PaddleOCR import."""
-    os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(DEFAULT_LPR_DIR / ".paddlex-cache"))
-    os.environ.setdefault("MPLCONFIGDIR", str(DEFAULT_LPR_DIR / ".matplotlib-cache"))
+    """Apply application-local OCR cache settings immediately before PaddleOCR import."""
+    os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(DEFAULT_OCR_CACHE_DIR / ".paddlex-cache"))
+    os.environ.setdefault("MPLCONFIGDIR", str(DEFAULT_OCR_CACHE_DIR / ".matplotlib-cache"))
     os.environ.setdefault("PADDLE_HOME", str(DEFAULT_PADDLE_CACHE_DIR))
     os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
     os.environ.setdefault("PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT", "False")
