@@ -5,12 +5,13 @@ NVlabs SegFormer source with local SkyScapes and AI Hub lane-dataset extensions.
 ## Layout
 
 ```text
-source/   upstream SegFormer source plus local datasets and configs
-scripts/  dataset preparation, environment setup, conversion, and inference tools
-docs/     experiment and environment records
-configs/  project-level configuration index
-models/   local checkpoints and pretrained weights; excluded from Git
-outputs/  work directories and visualizations; excluded from Git
+source/                 upstream SegFormer source plus local datasets and configs
+scripts/data/           dataset preparation and split tools
+scripts/visualization/  annotation and prediction visualization tools
+docs/                   experiment and environment records
+configs/                project-level configuration index
+models/                 local checkpoints and pretrained weights; excluded from Git
+outputs/                work directories and visualizations; excluded from Git
 ```
 
 ## Upstream provenance

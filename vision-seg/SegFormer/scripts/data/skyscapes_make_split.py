@@ -16,7 +16,7 @@ split은 병합 후 solid/dashed 픽셀량이 train:val:test = 6:2:2 비율에 �
 전수 탐색으로 결정한다. 탐색은 결정론적이라 몇 번 실행해도 같은 결과가 나온다.
 
 사용법:
-    python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_make_split.py --overwrite
+    python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/skyscapes_make_split.py --overwrite
     python3 .../skyscapes_make_split.py --dry-run     # 파일 생성 없이 split 계획과 통계만 출력
 """
 

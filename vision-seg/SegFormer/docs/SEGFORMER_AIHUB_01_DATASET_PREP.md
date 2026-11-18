@@ -171,7 +171,7 @@ crosswalk/stop_line 을 ignore 가 아니라 **background 로 흡수**한다. ig
 
 ```bash
 PYTHONNOUSERSITE=1 python3 \
-  /home/hsjeong/workspace/vision-seg/SegFormer/scripts/aihub_make_masks.py \
+  /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/aihub_make_masks.py \
   --workers 24
 
 # 시험 (서브셋당 40장만)
@@ -307,7 +307,7 @@ mmseg `CustomDataset` 이 `img.replace(img_suffix, seg_map_suffix)` 로 단순 �
 ```bash
 # 확정 분할 (서브셋 홀드아웃)
 PYTHONNOUSERSITE=1 python3 \
-  /home/hsjeong/workspace/vision-seg/SegFormer/scripts/aihub_make_split.py \
+  /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/aihub_make_split.py \
   --test-subsets c_1920_1200_daylight_validation_3 1920_1080_night_validation_d_1 \
   --train-val-ratio 8 2 \
   --out /home/hsjeong/workspace/dataset/AIHUB/CAR_LANE_SEG/split_holdout \

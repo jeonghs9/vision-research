@@ -28,7 +28,7 @@ CustomDataset 은 img_dir 를 재귀 스캔해 img_suffix 로 끝나는 파일�
   정렬된 목록에서 균등 간격으로 결정론적으로 고른다. val/test 는 평가 커버리지를 위해 전부 남긴다.
 
 사용법:
-    python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_make_tiles.py --overwrite
+    python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/skyscapes_make_tiles.py --overwrite
     python3 .../skyscapes_make_tiles.py --dry-run
     python3 .../skyscapes_make_tiles.py --tile 512 --stride-train 256 --overwrite
 """

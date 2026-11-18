@@ -414,7 +414,7 @@ dashed 는 대부분 찾지만(재현율 86%) 실제보다 두껍게 칠해 오�
 cd /home/hsjeong/workspace/vision-seg/SegFormer/source
 PYTHONNOUSERSITE=1 CUDA_VISIBLE_DEVICES=0 \
 /home/hsjeong/miniconda3/envs/segformer_cu111/bin/python \
-  /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_visualize_test.py
+  /home/hsjeong/workspace/vision-seg/SegFormer/scripts/visualization/skyscapes_visualize_test.py
 
 # 다른 체크포인트/split, 크기 조절
   ... skyscapes_visualize_test.py --checkpoint work_dirs/.../iter_7000.pth --split val
@@ -598,7 +598,7 @@ dashed 정밀도가 여전히 43.5% — 예측한 dashed 픽셀의 절반 이상
 cd /home/hsjeong/workspace/vision-seg/SegFormer/source
 PYTHONNOUSERSITE=1 CUDA_VISIBLE_DEVICES=0 \
 /home/hsjeong/miniconda3/envs/segformer_cu111/bin/python \
-  /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_visualize_test.py \
+  /home/hsjeong/workspace/vision-seg/SegFormer/scripts/visualization/skyscapes_visualize_test.py \
   --config local_configs/segformer/B2/segformer.b2.1024x1024.skyscapes.20k.py \
   --checkpoint work_dirs/b2_skyscapes_30k/iter_14000.pth \
   --out-dir work_dirs/b2_skyscapes_30k/vis_test

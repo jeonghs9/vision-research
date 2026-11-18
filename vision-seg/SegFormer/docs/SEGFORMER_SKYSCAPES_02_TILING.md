@@ -152,17 +152,17 @@ val/test는 평가 커버리지를 위해 **전부 사용**한다. 빈 타일을
 
 ```bash
 # 계획만 확인 (파일 생성 없음)
-python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_make_tiles.py --dry-run
+python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/skyscapes_make_tiles.py --dry-run
 
 # 실제 생성 (기존 tiles/ 삭제 후 재생성)
-python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_make_tiles.py --overwrite
+python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/skyscapes_make_tiles.py --overwrite
 
 # 타일 크기/스트라이드 변경
-python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_make_tiles.py \
+python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/skyscapes_make_tiles.py \
     --tile 512 --stride-train 256 --overwrite
 
 # 빈 타일을 더 많이/적게 남기기 (전경 타일 수 대비 배수)
-python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_make_tiles.py \
+python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/skyscapes_make_tiles.py \
     --train-empty-ratio 0.1 --overwrite
 ```
 

@@ -163,10 +163,10 @@ semantic segmentation은 모든 픽셀에 클래스를 하나씩 배정한다. s
 
 ```bash
 # 계획과 통계만 확인 (파일 생성 없음)
-python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_make_split.py --dry-run
+python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/skyscapes_make_split.py --dry-run
 
 # 실제 생성 (기존 출력 삭제 후 재생성)
-python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/skyscapes_make_split.py --overwrite
+python3 /home/hsjeong/workspace/vision-seg/SegFormer/scripts/data/skyscapes_make_split.py --overwrite
 ```
 
 ---
